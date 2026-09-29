@@ -1,0 +1,128 @@
+@model Three25IT.ViewModels.CoverageCheckViewModel
+
+@if (Model.ShowResults)
+{
+    <div class="coverage-result @Model.ResultType mt-4">
+        <div class="d-flex align-items-start gap-2">
+            <span class="fs-4 lh-1">
+                @switch (Model.ResultType)
+                {
+                    case "available":
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        break;
+                    case "inprogress":
+                        <i class="bi bi-cone-striped text-warning"></i>
+                        break;
+                    case "planned":
+                        <i class="bi bi-calendar-event text-primary"></i>
+                        break;
+                    case "waitlist":
+                        <i class="bi bi-hourglass-split text-secondary"></i>
+                        break;
+                    default:
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                        break;
+                }
+            </span>
+            <div class="flex-grow-1">
+                <div class="status-head">@Model.ResultTitle</div>
+                <p class="mb-0 mt-1" style="font-size: 0.92rem; color: var(--t25-ink);">@Model.ResultMessage</p>
+            </div>
+        </div>
+
+        <div class="coverage-map">
+            <iframe
+                title="Map of @Model.Address"
+                src="https://www.google.com/maps?q=@(Uri.EscapeDataString(Model.Address))&amp;output=embed&amp;z=15&amp;hl=en"
+                width="100%"
+                height="260"
+                style="border: 0;"
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="coverage-map-footer">
+                <span class="coverage-map-label">
+                    <i class="bi bi-geo-alt me-1"></i>@Model.Address
+                </span>
+                <a href="https://www.google.com/maps/dir/?api=1&amp;destination=@(Uri.EscapeDataString(Model.Address))"
+                   target="_blank" rel="noopener">
+                    Get directions <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+            </div>
+        </div>
+
+        @if (Model.Primary is not null)
+        {
+            <div class="coverage-metrics">
+                <div class="coverage-metric">
+                    <div class="k">Speeds up to</div>
+                    <div class="v">@Model.Primary.MaxDownloadMbps / @Model.Primary.MaxUploadMbps Mbps</div>
+                </div>
+                <div class="coverage-metric">
+                    <div class="k">Coverage</div>
+                    <div class="v">@Model.Primary.CoverageStatus</div>
+                </div>
+                <div class="coverage-metric">
+                    <div class="k">Installation</div>
+                    <div class="v">@(Model.Primary.InstallFee == 0 ? "Free" : "R" + Model.Primary.InstallFee.ToString("0"))</div>
+                </div>
+                @if (Model.Primary.ExchangeNode is not null)
+                {
+                    <div class="coverage-metric">
+                        <div class="k">Exchange</div>
+                        <div class="v">@Model.Primary.ExchangeNode</div>
+                    </div>
+                }
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <a class="btn btn-primary btn-sm" asp-controller="Home" asp-action="Contact"
+                   asp-route-plan="@(Model.EligiblePlans.FirstOrDefault()?.Id)"
+                   asp-route-address="@Model.Address">
+                    <i class="bi bi-chat-left-text me-1"></i> Get pricing for my area
+                </a>
+                <a class="btn btn-outline-primary btn-sm" asp-controller="Home" asp-action="Pricing">
+                    View all plans
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <a class="btn btn-primary btn-sm" asp-controller="Home" asp-action="Contact" asp-route-address="@Model.Address">
+                    Register my interest
+                </a>
+            </div>
+        }
+
+        @if (Model.Matches.Count > 1)
+        {
+            <details class="mt-3">
+                <summary class="text-muted" style="font-size: 0.86rem; cursor: pointer;">
+                    @Model.Matches.Count matching areas found
+                </summary>
+                <div class="table-responsive mt-2">
+                    <table class="table table-sm mb-0" style="font-size: 0.85rem;">
+                        <thead>
+                            <tr>
+                                <th>Area</th>
+                                <th>Status</th>
+                                <th class="text-end">Max speed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var area in Model.Matches)
+                            {
+                                <tr>
+                                    <td>@area.Suburb, @area.City</td>
+                                    <td>@area.CoverageStatus</td>
+                                    <td class="text-end">@area.MaxDownloadMbps Mbps</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        }
+    </div>
+}

@@ -1,0 +1,276 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_PortalLayout";
+    var openTicketCount = Model.OpenTickets.Count;
+    ViewData["OpenTicketCount"] = openTicketCount;
+
+    string BadgeClass(string status) => status switch
+    {
+        "Paid" => "badge-paid",
+        "Due" => "badge-due",
+        "Overdue" => "badge-overdue",
+        "Active" => "badge-active",
+        "Pending" => "badge-pending",
+        _ => "badge-draft"
+    };
+}
+
+<div class="portal-shell">
+    <partial name="_Sidebar" />
+
+    <div class="portal-content">
+        <div class="portal-header">
+            <div>
+                <h1>Hi @(Model.Customer?.FullName?.Split(' ').First() ?? "there"), welcome back</h1>
+                <p class="sub">
+                    Account @Model.Customer?.AccountNumber
+                    @if (Model.Plan is not null)
+                    {
+                        <span>&middot; @Model.Plan.Name</span>
+                    }
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-primary" asp-controller="Support" asp-action="New">
+                    <i class="bi bi-plus-lg me-1"></i>New ticket
+                </a>
+                @if (Model.OutstandingBalance > 0)
+                {
+                    <a class="btn btn-primary" asp-controller="Billing" asp-action="Pay"
+                       asp-route-invoiceId="@Model.OutstandingInvoice?.Id">
+                        <i class="bi bi-credit-card me-1"></i>Pay R@(Model.OutstandingBalance.ToString("N2"))
+                    </a>
+                }
+            </div>
+        </div>
+
+        <partial name="_Alerts" />
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-label">Service status</div>
+                    <div class="stat-value" style="font-size: 1.3rem;">@Model.Service?.ServiceStatus</div>
+                    <div class="stat-hint">
+                        @(Model.Plan is not null ? $"{Model.Plan.DownloadMbps} Mbps down / {Model.Plan.UploadMbps} Mbps up" : "No active plan")
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card @(Model.OutstandingBalance > 0 ? "red" : "green")">
+                    <div class="stat-label">Balance</div>
+                    <div class="stat-value">R@(Model.OutstandingBalance.ToString("N2"))</div>
+                    <div class="stat-hint">
+                        @if (Model.OutstandingBalance > 0)
+                        {
+                            <span class="text-danger">Payment due</span>
+                        }
+                        else
+                        {
+                            <span class="text-success">All settled</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card cyan">
+                    <div class="stat-label">This month's data</div>
+                    <div class="stat-value">@(Model.CurrentUsage?.DownloadGb ?? 0)<small style="font-size: 0.95rem;"> GB</small></div>
+                    <div class="stat-hint">
+                        @if (Model.PreviousUsage is not null)
+                        {
+                            var delta = (Model.CurrentUsage?.DownloadGb ?? 0) - Model.PreviousUsage.DownloadGb;
+                            var pct = Model.PreviousUsage.DownloadGb > 0
+                                ? Math.Round(delta / Model.PreviousUsage.DownloadGb * 100)
+                                : 0;
+                            <span class="@(delta > 0 ? "text-danger" : "text-success")">
+                                @(delta > 0 ? "+" : "")@pct% vs last month
+                            </span>
+                        }
+                        else
+                        {
+                            <span>Uncapped &middot; no limit</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card @(openTicketCount > 0 ? "amber" : "")">
+                    <div class="stat-label">Open tickets</div>
+                    <div class="stat-value">@openTicketCount</div>
+                    <div class="stat-hint">
+                        <a asp-controller="Support" asp-action="Index">View all tickets</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-7">
+                <div class="panel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="mb-0">Current plan</h2>
+                        <a asp-controller="Service" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                            Manage service
+                        </a>
+                    </div>
+
+                    @if (Model.Service is not null)
+                    {
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div>
+                                <div class="fs-4 fw-bold" style="color: var(--t25-blue); line-height: 1;">
+                                    @Model.Plan?.DownloadMbps<span class="text-muted" style="font-size: 1rem;"> Mbps</span>
+                                </div>
+                                <div class="text-muted" style="font-size: 0.82rem;">@Model.Plan?.Name</div>
+                            </div>
+                            <div class="ms-auto text-end">
+                                <div class="fs-5 fw-bold" style="color: var(--t25-navy);">
+                                    R@(Model.Service.MonthlyPrice.ToString("N2"))
+                                </div>
+                                <div class="text-muted" style="font-size: 0.8rem;">per month</div>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="k">Upload speed</span>
+                            <span class="v">@Model.Plan?.UploadMbps Mbps</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">Next billing date</span>
+                            <span class="v">@Model.Service.NextBillingDate.ToString("d MMMM yyyy")</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">Contract ends</span>
+                            <span class="v">@Model.Service.ContractEndDate.ToString("d MMMM yyyy")</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">Public IP</span>
+                            <span class="v">@Model.Service.PublicIpAddress</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">Fibre type</span>
+                            <span class="v">@Model.Service.FibreType</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="icon"><i class="bi bi-router"></i></div>
+                            <p class="mb-3">You don't have an active service on your account yet.</p>
+                            <a class="btn btn-primary" asp-controller="Home" asp-action="Contact">Get connected</a>
+                        </div>
+                    }
+                </div>
+
+                <div class="panel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="mb-0">Recent invoices</h2>
+                        <a asp-controller="Billing" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                            All billing
+                        </a>
+                    </div>
+
+                    @if (Model.RecentInvoices.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice</th>
+                                        <th>Period</th>
+                                        <th>Due</th>
+                                        <th class="text-end">Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var invoice in Model.RecentInvoices)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a asp-controller="Billing" asp-action="Invoice" asp-route-id="@invoice.Id">
+                                                    @invoice.InvoiceNumber
+                                                </a>
+                                            </td>
+                                            <td class="text-muted">@invoice.PeriodStart.ToString("MMM yy")</td>
+                                            <td class="text-muted">@invoice.DueDate.ToString("d MMM")</td>
+                                            <td class="text-end fw-semibold">R@(invoice.Total.ToString("N2"))</td>
+                                            <td><span class="status-badge @BadgeClass(invoice.InvoiceStatus)">@invoice.InvoiceStatus</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="icon"><i class="bi bi-receipt"></i></div>
+                            <p class="mb-0">No invoices yet.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="panel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="mb-0">Support tickets</h2>
+                        <a asp-controller="Support" asp-action="New" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i>New
+                        </a>
+                    </div>
+
+                    @if (Model.OpenTickets.Any())
+                    {
+                        @foreach (var ticket in Model.OpenTickets)
+                        {
+                            <div class="detail-row">
+                                <span class="k">
+                                    <a asp-controller="Support" asp-action="Detail" asp-route-id="@ticket.Id"
+                                       class="text-decoration-none">@ticket.Subject</a>
+                                    <span class="d-block" style="font-size: 0.76rem;">@ticket.TicketNumber &middot; updated @ticket.UpdatedAt.ToString("d MMM")</span>
+                                </span>
+                                <span class="v">
+                                    <span class="status-badge @(ticket.TicketStatus == TicketStatuses.Open ? "badge-open" : "badge-progress")">
+                                        @ticket.TicketStatus
+                                    </span>
+                                </span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="icon"><i class="bi bi-check2-circle"></i></div>
+                            <p class="mb-2">No open tickets. Everything looks healthy.</p>
+                            <a asp-controller="Support" asp-action="New" class="btn btn-sm btn-outline-primary">
+                                Report a problem
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <div class="panel">
+                    <h2>Quick actions</h2>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-outline-primary text-start" asp-controller="Billing" asp-action="Index">
+                            <i class="bi bi-receipt me-2"></i>View invoices &amp; payments
+                        </a>
+                        <a class="btn btn-outline-primary text-start" asp-controller="Usage" asp-action="Index">
+                            <i class="bi bi-graph-up me-2"></i>Check my data usage
+                        </a>
+                        <a class="btn btn-outline-primary text-start" asp-controller="Service" asp-action="Index">
+                            <i class="bi bi-arrow-repeat me-2"></i>Upgrade my package
+                        </a>
+                        <a class="btn btn-outline-primary text-start" asp-controller="Manage" asp-action="Index">
+                            <i class="bi bi-person-gear me-2"></i>Update my details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

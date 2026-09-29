@@ -1,0 +1,117 @@
+@model PricingViewModel
+@{
+    ViewData["Title"] = "Pricing";
+    var residential = Model.Plans.Where(p => !p.IsBusiness).ToList();
+    var business = Model.Plans.Where(p => p.IsBusiness).ToList();
+}
+
+<section class="hero" style="padding: 3rem 0 4.5rem;">
+    <div class="container">
+        <div class="col-lg-8">
+            <p class="text-eyebrow mb-2">Pricing</p>
+            <h1 style="font-size: clamp(1.9rem, 4vw, 2.8rem);">Transparent packages.<br />Everything included.</h1>
+            <p class="lead">
+                Every residential package below includes a managed WiFi router, free installation on
+                active nodes and uncapped data. Business plans add SLAs and a dedicated account manager.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="container">
+    <div class="text-center mb-4">
+        <h2 class="section-title">Residential packages</h2>
+        <p class="text-muted">For homes, students and home offices.</p>
+    </div>
+    <div class="row g-4">
+        @foreach (var plan in residential)
+        {
+            <div class="col-md-6 col-lg-3">
+                <partial name="_PlanCard" model="plan" />
+            </div>
+        }
+    </div>
+</section>
+
+@if (business.Any())
+{
+    <section class="container py-5">
+        <div class="text-center mb-4">
+            <h2 class="section-title">Business packages</h2>
+            <p class="text-muted">For offices, studios and home businesses that can't afford downtime.</p>
+        </div>
+        <div class="row justify-content-center g-4">
+            @foreach (var plan in business)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <partial name="_PlanCard" model="plan" />
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<section class="container pb-5">
+    <div class="panel">
+        <h2>Questions people ask before they switch</h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <strong class="d-block" style="color: var(--t25-navy);">Is installation really free?</strong>
+                    <span class="text-muted" style="font-size: 0.9rem;">
+                        On any active node, yes. Where we're still building, there's a R250 - R350
+                        trenching fee, and we'll tell you before you sign anything.
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <strong class="d-block" style="color: var(--t25-navy);">What happens after my contract ends?</strong>
+                    <span class="text-muted" style="font-size: 0.9rem;">
+                        You move to a month-to-month agreement on the same price. No renegotiation,
+                        no price hike, and you can cancel with 30 days' notice.
+                    </span>
+                </div>
+                <div>
+                    <strong class="d-block" style="color: var(--t25-navy);">Can I keep my existing email addresses?</strong>
+                    <span class="text-muted" style="font-size: 0.9rem;">
+                        Yes. We don't touch your mailboxes &mdash; your current provider keeps hosting
+                        them and we only carry over your internet line.
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <strong class="d-block" style="color: var(--t25-navy);">Do you charge for the router?</strong>
+                    <span class="text-muted" style="font-size: 0.9rem;">
+                        The router is included and stays on your account for as long as you're with
+                        us. If you cancel and return it, you can buy it outright at a reduced rate.
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <strong class="d-block" style="color: var(--t25-navy);">What happens if I use a lot of data?</strong>
+                    <span class="text-muted" style="font-size: 0.9rem;">
+                        Nothing. Uncapped means uncapped &mdash; we don't throttle, deprioritise or
+                        charge overage, no matter how much you pull down.
+                    </span>
+                </div>
+                <div>
+                    <strong class="d-block" style="color: var(--t25-navy);">How fast can I be connected?</strong>
+                    <span class="text-muted" style="font-size: 0.9rem;">
+                        Typically 3 business days on active nodes. We'll confirm an installation slot
+                        when you accept your quote, and handle the switch-over with your old provider.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cta-band text-center">
+        <h2>Not sure which package fits?</h2>
+        <p class="mx-auto" style="color: rgba(255,255,255,0.85); max-width: 34rem;">
+            Tell us your address and how many people will be streaming, gaming or working from home.
+            We'll recommend the right speed and confirm it's available before you commit.
+        </p>
+        <a class="btn btn-cyan btn-lg mt-2" asp-controller="Home" asp-action="Contact">
+            Get a recommendation <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+</section>

@@ -1,0 +1,115 @@
+@model NewTicketViewModel
+@{
+    ViewData["Title"] = "New Ticket";
+    Layout = "_PortalLayout";
+    ViewData["OpenTicketCount"] = 0;
+}
+
+<div class="portal-shell">
+    <partial name="_Sidebar" />
+
+    <div class="portal-content">
+        <div class="portal-header">
+            <div>
+                <h1>Raise a support ticket</h1>
+                <p class="sub">Tell us what's happening and we'll take it from here.</p>
+            </div>
+        </div>
+
+        <partial name="_Alerts" />
+
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="panel">
+                    <h2>Ticket details</h2>
+                    <form asp-action="New" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Category" class="form-label"></label>
+                                <select asp-for="Category" class="form-select">
+                                    <option value="@TicketCategories.Technical">Technical fault</option>
+                                    <option value="@TicketCategories.Billing">Billing</option>
+                                    <option value="@TicketCategories.Installation">Installation</option>
+                                    <option value="@TicketCategories.Upgrading">Upgrading</option>
+                                    <option value="@TicketCategories.General">General enquiry</option>
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Priority" class="form-label"></label>
+                                <select asp-for="Priority" class="form-select">
+                                    <option value="@TicketPriorities.Low">Low - general question</option>
+                                    <option value="@TicketPriorities.Normal">Normal - not urgent</option>
+                                    <option value="@TicketPriorities.High">High - service degraded</option>
+                                    <option value="@TicketPriorities.Urgent">Urgent - total outage</option>
+                                </select>
+                                <span asp-validation-for="Priority" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Subject" class="form-label"></label>
+                                <input asp-for="Subject" class="form-control" placeholder="Short summary of the problem" />
+                                <span asp-validation-for="Subject" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Description" class="form-label"></label>
+                                <textarea asp-for="Description" rows="7" class="form-control"
+                                          placeholder="When did it start? What have you tried? Is it constant or intermittent?"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-send me-1"></i>Submit ticket
+                                </button>
+                                <a class="btn btn-link text-muted" asp-action="Index">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="panel">
+                    <h2>Your service on record</h2>
+                    @if (Model.Service is not null)
+                    {
+                        <div class="detail-row">
+                            <span class="k">Account</span>
+                            <span class="v">@Model.Service.AccountNumber</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">Plan</span>
+                            <span class="v">@Model.Service.Plan?.Name</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">ONT serial</span>
+                            <span class="v">@Model.Service.OntSerialNumber</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">Public IP</span>
+                            <span class="v">@Model.Service.PublicIpAddress</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">Status</span>
+                            <span class="v">@Model.Service.ServiceStatus</span>
+                        </div>
+                        <div class="text-muted mt-3 mb-0" style="font-size: 0.84rem;">
+                            These details are attached to your ticket automatically, so our engineers
+                            don't have to ask.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state mb-0">
+                            <div class="icon"><i class="bi bi-router"></i></div>
+                            <p class="mb-0" style="font-size: 0.9rem;">
+                                No service on record yet. You can still raise an enquiry and we'll help.
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

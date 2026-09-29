@@ -1,0 +1,132 @@
+@model InvoiceDetailViewModel
+@{
+    ViewData["Title"] = Model.Invoice?.InvoiceNumber ?? "Invoice";
+    Layout = "_PortalLayout";
+    ViewData["OpenTicketCount"] = 0;
+    var invoice = Model.Invoice!;
+
+    string BadgeClass(string status) => status switch
+    {
+        "Paid" => "badge-paid",
+        "Due" => "badge-due",
+        "Overdue" => "badge-overdue",
+        _ => "badge-draft"
+    };
+}
+
+<div class="portal-shell">
+    <partial name="_Sidebar" />
+
+    <div class="portal-content">
+        <div class="portal-header">
+            <div>
+                <h1>Invoice @invoice.InvoiceNumber</h1>
+                <p class="sub">
+                    Issued @invoice.IssueDate.ToString("d MMMM yyyy") &middot; Due @invoice.DueDate.ToString("d MMMM yyyy")
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Billing">
+                    <i class="bi bi-arrow-left me-1"></i>All invoices
+                </a>
+                @if (invoice.Balance > 0)
+                {
+                    <a class="btn btn-primary" asp-action="Pay" asp-controller="Billing" asp-route-invoiceId="@invoice.Id">
+                        <i class="bi bi-credit-card me-1"></i>Pay R@(invoice.Balance.ToString("N2"))
+                    </a>
+                }
+                else
+                {
+                    <button class="btn btn-outline-primary" type="button" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i>Print / save PDF
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <p class="text-eyebrow mb-2" style="color: var(--t25-blue);">Billed to</p>
+                    <div class="fw-semibold" style="color: var(--t25-navy);">@Model.Customer?.FullName</div>
+                    <div class="text-muted" style="font-size: 0.9rem;">
+                        @Model.Customer?.StreetAddress<br />
+                        @Model.Customer?.Suburb@(Model.Customer?.City is not null ? ", " + Model.Customer.City : "")<br />
+                        @Model.Customer?.PostalCode<br />
+                        @Model.Customer?.Email
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <p class="text-eyebrow mb-2" style="color: var(--t25-blue);">Service details</p>
+                    <div class="detail-row">
+                        <span class="k">Account number</span>
+                        <span class="v">@Model.Service?.AccountNumber</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Package</span>
+                        <span class="v">@Model.Plan?.Name</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Billing period</span>
+                        <span class="v">@invoice.PeriodStart.ToString("d MMM") - @invoice.PeriodEnd.ToString("d MMM yyyy")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Status</span>
+                        <span class="v"><span class="status-badge @BadgeClass(invoice.InvoiceStatus)">@invoice.InvoiceStatus</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Unit price</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in invoice.LineItems)
+                        {
+                            <tr>
+                                <td>@line.Description</td>
+                                <td class="text-center">@line.Quantity</td>
+                                <td class="text-end">R@(line.UnitPrice.ToString("N2"))</td>
+                                <td class="text-end fw-semibold">R@(line.Amount.ToString("N2"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row justify-content-end">
+                <div class="col-md-5">
+                    <div class="detail-row">
+                        <span class="k">Subtotal</span>
+                        <span class="v">R@(invoice.Subtotal.ToString("N2"))</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">VAT (15%)</span>
+                        <span class="v">R@(invoice.VAT.ToString("N2"))</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Total</span>
+                        <span class="v fs-6">R@(invoice.Total.ToString("N2"))</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Amount paid</span>
+                        <span class="v">R@(invoice.AmountPaid.ToString("N2"))</span>
+                    </div>
+                    <div class="detail-row" style="border-top: 2px solid var(--t25-navy); border-bottom: 0; padding-top: 0.8rem;">
+                        <span class="k fw-bold">Balance due</span>
+                        <span class="v fs-5 @(invoice.Balance > 0 ? "text-danger" : "text-success")">
+                            R@(invoice.Balance.ToString("N2"))
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

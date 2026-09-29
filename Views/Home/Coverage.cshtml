@@ -1,0 +1,124 @@
+@model CoverageCheckViewModel
+@{
+    ViewData["Title"] = "Check Availability";
+}
+
+<section class="hero" style="padding: 3rem 0 4.5rem;">
+    <div class="container">
+        <div class="col-lg-8">
+            <p class="text-eyebrow mb-2">Coverage checker</p>
+            <h1 style="font-size: clamp(1.9rem, 4vw, 2.8rem);">Is fibre at your address?</h1>
+            <p class="lead">
+                We've passed fibre through @(ViewBag.SuburbsCovered) suburbs so far. Check yours below.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="container">
+    <div class="coverage-card" style="margin-top: -2.75rem;">
+        <div class="row align-items-end g-3">
+            <div class="col-lg-7">
+                <h2 class="h5 fw-bold mb-1" style="color: var(--t25-navy);">Search our network</h2>
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                    Try a street address, just a suburb, or a postal code &mdash; we'll match whatever
+                    we've got on file.
+                </p>
+            </div>
+            <div class="col-lg-5">
+                <form asp-controller="Home" asp-action="Coverage" method="get" class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <input class="form-control" type="text" name="address" placeholder="Suburb, street or postal code"
+                               value="@Model.Address" aria-label="Your address" autofocus />
+                    </div>
+                    <button class="btn btn-primary px-4" type="submit">
+                        <i class="bi bi-search me-1"></i>Check
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        @if (!Model.ShowResults)
+        {
+            <div class="d-flex flex-wrap gap-2 mt-3" style="font-size: 0.85rem;">
+                <span class="text-muted me-1">Try one of these:</span>
+                @foreach (var sample in new[] { "Menlyn", "Centurion", "Table View", "Durban North", "0181" })
+                {
+                    <a class="btn btn-sm btn-outline-primary"
+                       asp-controller="Home" asp-action="Coverage" asp-route-address="@sample">@sample</a>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="row justify-content-center mt-2">
+        <div class="col-lg-8">
+            <partial name="_CoverageResult" model="Model" />
+        </div>
+    </div>
+</section>
+
+@if (Model.ShowResults && Model.Primary is not null)
+{
+    <section class="container py-5">
+        <h2 class="section-title mb-4">Plans you can get at @Model.Primary.Suburb</h2>
+        <div class="row g-4">
+            @foreach (var plan in Model.EligiblePlans)
+            {
+                <div class="col-md-6 col-lg-3">
+                    <partial name="_PlanCard" model="plan" />
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<section class="container pb-5">
+    <div class="panel">
+        <h2>How our coverage data works</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <span class="step-num">1</span>
+                    <div>
+                        <strong class="d-block" style="color: var(--t25-navy);">Available now</strong>
+                        <span class="text-muted" style="font-size: 0.86rem;">Live fibre at your street. Book an install.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <span class="step-num">2</span>
+                    <div>
+                        <strong class="d-block" style="color: var(--t25-navy);">In progress</strong>
+                        <span class="text-muted" style="font-size: 0.86rem;">We're splicing now. Join the list.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <span class="step-num">3</span>
+                    <div>
+                        <strong class="d-block" style="color: var(--t25-navy);">Planned</strong>
+                        <span class="text-muted" style="font-size: 0.86rem;">On the build schedule for a future phase.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <span class="step-num">4</span>
+                    <div>
+                        <strong class="d-block" style="color: var(--t25-navy);">Waitlist</strong>
+                        <span class="text-muted" style="font-size: 0.86rem;">High demand. We'll call when a slot opens.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="text-muted mt-4 mb-0" style="font-size: 0.88rem;">
+            Coverage is updated daily as new nodes go live. Not listed? Call us on
+            <a href="tel:0860000325">0860 000 325</a> and our team will check manually, or
+            <a asp-controller="Home" asp-action="Contact" asp-route-address="@Model.Address">register your interest</a>
+            so we notify you the day your street goes live.
+        </p>
+    </div>
+</section>

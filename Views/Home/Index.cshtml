@@ -1,0 +1,191 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Uncapped Fibre Internet";
+}
+
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <p class="text-eyebrow mb-2">Fibre internet, done properly</p>
+                <h1>Check if fibre is at your door.<br />Switch up in three days.</h1>
+                <p class="lead mt-3">
+                    Symmetrical, uncapped fibre from R349 a month. No installation fees on most
+                    nodes, 24/7 support and a customer portal that actually tells you what's
+                    happening on your line.
+                </p>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a class="btn btn-cyan btn-lg" href="#coverage">
+                        <i class="bi bi-geo-alt me-2"></i>Check my address
+                    </a>
+                    <a class="btn btn-outline-light btn-lg" asp-controller="Home" asp-action="Pricing">
+                        See pricing
+                    </a>
+                </div>
+
+                <div class="hero-trust">
+                    <div>
+                        <div class="value">@(Model.HomesPassed.ToString("N0"))</div>
+                        <div class="label">Homes passed</div>
+                    </div>
+                    <div>
+                        <div class="value">@Model.SuburbsCovered</div>
+                        <div class="label">Suburbs live</div>
+                    </div>
+                    <div>
+                        <div class="value">99.9%</div>
+                        <div class="label">Uptime target</div>
+                    </div>
+                    <div>
+                        <div class="value">3 days</div>
+                        <div class="label">Average install</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="coverage-card mb-4" style="margin-top: 0;">
+                    <p class="text-eyebrow mb-2" style="color: var(--t25-blue);">Why symmetrical?</p>
+                    <h2 class="h5 fw-bold" style="color: var(--t25-navy);">Upload as fast as you download.</h2>
+                    <p class="text-muted mb-3" style="font-size: 0.9rem;">
+                        Most South African providers give you a fraction of your download speed upstream.
+                        We give you the same number both ways &mdash; which is what video calls,
+                        cloud backups and gaming actually need.
+                    </p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between text-muted" style="font-size: 0.78rem;">
+                                <span>Typical provider</span><span>20 Mbps up</span>
+                            </div>
+                            <div class="usage-bar mt-1">
+                                <div class="fill" style="width: 8%; background: #9AA7BD;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 mt-3">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between" style="font-size: 0.78rem;">
+                                <span style="color: var(--t25-navy); font-weight: 600;">Three25IT</span>
+                                <span style="color: var(--t25-blue); font-weight: 700;">500 Mbps up</span>
+                            </div>
+                            <div class="usage-bar mt-1">
+                                <div class="fill cyan" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container" id="coverage">
+    <div class="coverage-card">
+        <div class="row align-items-end g-3">
+            <div class="col-lg-7">
+                <h2 class="h5 fw-bold mb-1" style="color: var(--t25-navy);">Check fibre availability</h2>
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                    Enter your street address, suburb or postal code and we'll tell you exactly
+                    what's available at your door right now.
+                </p>
+            </div>
+            <div class="col-lg-5">
+                <form asp-controller="Home" asp-action="Index" method="get" class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <input class="form-control" type="text" name="address" placeholder="e.g. 42 Marula Street, Menlyn"
+                               value="@Model.Coverage?.Address" aria-label="Your address" />
+                    </div>
+                    <button class="btn btn-primary px-4" type="submit">
+                        <i class="bi bi-search me-1"></i>Check
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <partial name="_CoverageResult" model="Model.Coverage ?? new CoverageCheckViewModel()" />
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="text-center mb-5">
+        <p class="text-eyebrow mb-2" style="color: var(--t25-blue);">Packages</p>
+        <h2 class="section-title">Simple pricing, no surprises</h2>
+        <p class="text-muted mx-auto" style="max-width: 40rem;">
+            All our residential packages include a managed WiFi router and free installation on
+            active nodes. Contracts are 12 or 24 months &mdash; no lock-in beyond that.
+        </p>
+    </div>
+    <div class="row g-4">
+        @foreach (var plan in Model.Plans)
+        {
+            <div class="col-md-6 col-lg-3">
+                <partial name="_PlanCard" model="plan" />
+            </div>
+        }
+    </div>
+    <div class="text-center mt-4">
+        <a asp-controller="Home" asp-action="Pricing" class="btn btn-outline-primary">
+            Compare all packages <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+</section>
+
+<section class="container pb-5">
+    <div class="text-center mb-5">
+        <p class="text-eyebrow mb-2" style="color: var(--t25-blue);">Why Three25IT</p>
+        <h2 class="section-title">Built for South African networks</h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-tile">
+                <div class="tile-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                <h3>Truly uncapped</h3>
+                <p>No throttling, no fair-use caps, no shape. Download at full speed at 3am on the last day of the month.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-tile">
+                <div class="tile-icon"><i class="bi bi-arrow-left-right"></i></div>
+                <h3>Symmetrical speed</h3>
+                <p>Identical upload and download. Cloud backups, video calls and game streaming behave the way they should.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-tile">
+                <div class="tile-icon"><i class="bi bi-graph-up"></i></div>
+                <h3>Live usage &amp; billing</h3>
+                <p>See your data usage, invoices and payments in the customer portal. No waiting for a PDF email.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-tile">
+                <div class="tile-icon"><i class="bi bi-headset"></i></div>
+                <h3>Real local support</h3>
+                <p>Log a ticket in the portal and track it. Four-hour response on our business plans, same-day on residential.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-5">
+    <div class="cta-band">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <h2>Ready to switch?</h2>
+                <p class="mb-0" style="color: rgba(255,255,255,0.85); max-width: 38rem;">
+                    Check your address, pick a package and get a quote in under a minute. Our team
+                    will confirm the earliest installation slot and handle the switch-over from your
+                    existing provider.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a class="btn btn-cyan btn-lg" asp-controller="Home" asp-action="Contact">
+                    Get my quote <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

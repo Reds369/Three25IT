@@ -1,0 +1,64 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Log in";
+    Layout = "_Layout";
+}
+
+<section class="auth-wrapper">
+    <div class="container">
+        <div class="auth-card">
+            <div class="auth-head">
+                <img src="~/img/logo.svg" alt="Three25IT" />
+                <h1>Welcome back</h1>
+                <p>Log in to manage your service, billing and support.</p>
+            </div>
+
+            <partial name="_Alerts" />
+
+            <form asp-action="Login" asp-controller="Account" method="post">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" type="email" class="form-control" autocomplete="username"
+                           placeholder="you@example.com" autofocus />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" type="password" class="form-control" autocomplete="current-password"
+                           placeholder="Your password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
+                    <label asp-for="RememberMe" class="form-check-label" style="font-size: 0.9rem;"></label>
+                </div>
+
+                <button class="btn btn-primary w-100 py-2" type="submit">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Log in
+                </button>
+            </form>
+
+            <div class="text-center mt-4" style="font-size: 0.9rem;">
+                Don't have an account yet?
+                <a asp-action="Register" asp-controller="Account" asp-route-returnUrl="@Model.ReturnUrl">Create one</a>
+            </div>
+
+            <div class="demo-hint mt-4">
+                <strong class="d-block mb-2">
+                    <i class="bi bi-info-circle me-1"></i>Demo account
+                </strong>
+                <div class="mb-1">Email: <code>demo@three25it.co.za</code></div>
+                <div class="mb-0">Password: <code>Demo@12345</code></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

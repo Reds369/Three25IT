@@ -1,0 +1,177 @@
+@model AccountViewModel
+@{
+    ViewData["Title"] = "My Account";
+    Layout = "_PortalLayout";
+    ViewData["OpenTicketCount"] = 0;
+}
+
+<div class="portal-shell">
+    <partial name="_Sidebar" />
+
+    <div class="portal-content">
+        <div class="portal-header">
+            <div>
+                <h1>My account</h1>
+                <p class="sub">Your personal details, service information and security.</p>
+            </div>
+        </div>
+
+        <partial name="_Alerts" />
+
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="panel">
+                    <h2>Personal details</h2>
+                    <form asp-action="Index" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="FullName" class="form-label"></label>
+                                <input asp-for="FullName" class="form-control" />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Phone" class="form-label"></label>
+                                <input asp-for="Phone" class="form-control" />
+                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" type="email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="StreetAddress" class="form-label"></label>
+                                <input asp-for="StreetAddress" class="form-control" />
+                                <span asp-validation-for="StreetAddress" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-5">
+                                <label asp-for="Suburb" class="form-label"></label>
+                                <input asp-for="Suburb" class="form-control" />
+                                <span asp-validation-for="Suburb" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="City" class="form-label"></label>
+                                <input asp-for="City" class="form-control" />
+                                <span asp-validation-for="City" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="PostalCode" class="form-label"></label>
+                                <input asp-for="PostalCode" class="form-control" />
+                                <span asp-validation-for="PostalCode" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="IdNumber" class="form-label"></label>
+                                <input asp-for="IdNumber" class="form-control" placeholder="000000 0000 000" />
+                                <span asp-validation-for="IdNumber" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="DateOfBirth" class="form-label"></label>
+                                <input asp-for="DateOfBirth" type="date" class="form-control" />
+                                <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <div class="demo-hint">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Updating your service address also updates the installation
+                                    address on your active line, so our engineers always know
+                                    where to go.
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-check-lg me-1"></i>Save changes
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <h2>Change password</h2>
+                    <form asp-action="ChangePassword" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="currentPassword" class="form-label">Current password</label>
+                                <input class="form-control" type="password" name="currentPassword" id="currentPassword"
+                                       autocomplete="current-password" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="newPassword" class="form-label">New password</label>
+                                <input class="form-control" type="password" name="newPassword" id="newPassword"
+                                       autocomplete="new-password" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="confirmPassword" class="form-label">Confirm new password</label>
+                                <input class="form-control" type="password" name="confirmPassword" id="confirmPassword"
+                                       autocomplete="new-password" />
+                            </div>
+                            <div class="col-12">
+                                <div class="required-note mb-2">
+                                    Your new password must be at least 8 characters and include an
+                                    uppercase letter, a lowercase letter and a number.
+                                </div>
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="bi bi-key me-1"></i>Update password
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="panel">
+                    <h2>Account summary</h2>
+                    <div class="detail-row">
+                        <span class="k">Account number</span>
+                        <span class="v">@Model.AccountNumber</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Member since</span>
+                        <span class="v">@(Model.Service?.ActivatedOn.ToString("MMMM yyyy") ?? "-")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Service status</span>
+                        <span class="v">@(Model.Service?.ServiceStatus ?? "None")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Current plan</span>
+                        <span class="v">@(Model.Plan?.Name ?? "-")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Sign-in email</span>
+                        <span class="v">@User.Identity?.Name</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Notification preferences</h2>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="n1" checked />
+                        <label class="form-check-label" for="n1" style="font-size: 0.9rem;">
+                            Email me my invoice each month
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="n2" checked />
+                        <label class="form-check-label" for="n2" style="font-size: 0.9rem;">
+                            SMS when a ticket is updated
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="n3" />
+                        <label class="form-check-label" for="n3" style="font-size: 0.9rem;">
+                            Marketing and new plan offers
+                        </label>
+                    </div>
+                    <div class="demo-hint">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Notification preferences are display-only in this build.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

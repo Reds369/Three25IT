@@ -1,0 +1,27 @@
+## .NET / Visual Studio
+bin/
+obj/
+Build/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Local SQLite database (auto-created at startup)
+app.db
+app.db-shm
+app.db-wal
+*.db-journal
+
+## Logs
+*.log
+
+## OS / editor cruft
+Thumbs.db
+.DS_Store

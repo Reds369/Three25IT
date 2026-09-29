@@ -1,0 +1,209 @@
+@model BillingViewModel
+@{
+    ViewData["Title"] = "Billing";
+    Layout = "_PortalLayout";
+    ViewData["OpenTicketCount"] = 0;
+
+    string BadgeClass(string status) => status switch
+    {
+        "Paid" => "badge-paid",
+        "Due" => "badge-due",
+        "Overdue" => "badge-overdue",
+        _ => "badge-draft"
+    };
+
+    string PayStatusClass(string status) => status switch
+    {
+        "Successful" => "badge-paid",
+        "Pending" => "badge-due",
+        _ => "badge-overdue"
+    };
+}
+
+<div class="portal-shell">
+    <partial name="_Sidebar" />
+
+    <div class="portal-content">
+        <div class="portal-header">
+            <div>
+                <h1>Billing</h1>
+                <p class="sub">Invoices, payments and your billing history for account @Model.Customer?.AccountNumber.</p>
+            </div>
+            @if (Model.OutstandingBalance > 0)
+            {
+                <a class="btn btn-primary" asp-action="Pay">
+                    <i class="bi bi-credit-card me-1"></i>Pay R@(Model.OutstandingBalance.ToString("N2"))
+                </a>
+            }
+        </div>
+
+        <partial name="_Alerts" />
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="stat-card @(Model.OutstandingBalance > 0 ? "red" : "green")">
+                    <div class="stat-label">Outstanding</div>
+                    <div class="stat-value">R@(Model.OutstandingBalance.ToString("N2"))</div>
+                    <div class="stat-hint">@(Model.OutstandingBalance > 0 ? "Payment due" : "Nothing owing")</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-label">Next bill</div>
+                    <div class="stat-value" style="font-size: 1.3rem;">
+                        @(Model.NextBillingDate?.ToString("d MMM yyyy") ?? "-")
+                    </div>
+                    <div class="stat-hint">Monthly subscription</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card cyan">
+                    <div class="stat-label">Billed YTD</div>
+                    <div class="stat-value" style="font-size: 1.3rem;">R@(Model.TotalBilledYearToDate.ToString("N0"))</div>
+                    <div class="stat-hint">@DateTime.UtcNow.Year to date</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card green">
+                    <div class="stat-label">Paid YTD</div>
+                    <div class="stat-value" style="font-size: 1.3rem;">R@(Model.TotalPaidYearToDate.ToString("N0"))</div>
+                    <div class="stat-hint">All payments received</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Invoices</h2>
+            @if (Model.Invoices.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Invoice no.</th>
+                                <th>Billing period</th>
+                                <th>Issued</th>
+                                <th>Due</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end">Balance</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var invoice in Model.Invoices)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@invoice.InvoiceNumber</td>
+                                    <td class="text-muted">@invoice.PeriodStart.ToString("d MMM") - @invoice.PeriodEnd.ToString("d MMM yyyy")</td>
+                                    <td class="text-muted">@invoice.IssueDate.ToString("d MMM yy")</td>
+                                    <td class="text-muted">@invoice.DueDate.ToString("d MMM yy")</td>
+                                    <td class="text-end">R@(invoice.Total.ToString("N2"))</td>
+                                    <td class="text-end @(invoice.Balance > 0 ? "text-danger fw-semibold" : "text-muted")">
+                                        R@(invoice.Balance.ToString("N2"))
+                                    </td>
+                                    <td><span class="status-badge @BadgeClass(invoice.InvoiceStatus)">@invoice.InvoiceStatus</span></td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           asp-action="Invoice" asp-route-id="@invoice.Id">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="icon"><i class="bi bi-receipt"></i></div>
+                    <p class="mb-0">No invoices have been issued to this account yet.</p>
+                </div>
+            }
+        </div>
+
+        <div class="panel">
+            <h2>Payment history</h2>
+            @if (Model.Payments.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Invoice</th>
+                                <th class="text-end">Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var payment in Model.Payments)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@payment.Reference</td>
+                                    <td class="text-muted">@payment.PaymentDate.ToString("d MMM yyyy")</td>
+                                    <td>
+                                        @payment.PaymentMethod
+                                        @if (payment.CardLast4 is not null)
+                                        {
+                                            <span class="text-muted">****@payment.CardLast4</span>
+                                        }
+                                    </td>
+                                    <td class="text-muted">@payment.Invoice?.InvoiceNumber</td>
+                                    <td class="text-end fw-semibold">R@(payment.Amount.ToString("N2"))</td>
+                                    <td><span class="status-badge @PayStatusClass(payment.PaymentStatus)">@payment.PaymentStatus</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="icon"><i class="bi bi-credit-card"></i></div>
+                    <p class="mb-0">No payments recorded yet.</p>
+                </div>
+            }
+        </div>
+
+        <div class="panel">
+            <h2>Billing details on file</h2>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="k">Account holder</span>
+                        <span class="v">@Model.Customer?.FullName</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Email</span>
+                        <span class="v">@Model.Customer?.Email</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Contact number</span>
+                        <span class="v">@Model.Customer?.PhoneNumber</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="k">Service address</span>
+                        <span class="v">@Model.Customer?.StreetAddress, @Model.Customer?.Suburb</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Postal code</span>
+                        <span class="v">@Model.Customer?.PostalCode</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Billing cycle</span>
+                        <span class="v">Monthly in arrears</span>
+                    </div>
+                </div>
+            </div>
+            <a class="btn btn-outline-primary btn-sm mt-3" asp-controller="Manage" asp-action="Index">
+                <i class="bi bi-pencil me-1"></i>Update billing details
+            </a>
+        </div>
+    </div>
+</div>

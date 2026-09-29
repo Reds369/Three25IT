@@ -1,0 +1,81 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Create account";
+}
+
+<section class="auth-wrapper">
+    <div class="container">
+        <div class="auth-card wide">
+            <div class="auth-head">
+                <img src="~/img/logo.svg" alt="Three25IT" />
+                <h1>Create your customer account</h1>
+                <p>Track your service, invoices and support tickets in one place.</p>
+            </div>
+
+            <partial name="_Alerts" />
+
+            <form asp-action="Register" asp-controller="Account" method="post">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" autocomplete="name" autofocus />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label"></label>
+                        <input asp-for="Phone" class="form-control" autocomplete="tel" placeholder="+27 82 555 0125" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" type="email" class="form-control" autocomplete="username" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="StreetAddress" class="form-label"></label>
+                        <input asp-for="StreetAddress" class="form-control" autocomplete="street-address" placeholder="42 Marula Street" />
+                        <span asp-validation-for="StreetAddress" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="PostalCode" class="form-label"></label>
+                        <input asp-for="PostalCode" class="form-control" autocomplete="postal-code" />
+                        <span asp-validation-for="PostalCode" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Suburb" class="form-label"></label>
+                        <input asp-for="Suburb" class="form-control" placeholder="Menlyn" />
+                        <span asp-validation-for="Suburb" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" type="password" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                        <div class="required-note">At least 8 characters, with an uppercase letter, a lowercase letter and a number.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ConfirmPassword" class="form-label"></label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary w-100 py-2" type="submit">
+                            <i class="bi bi-person-plus me-2"></i>Create my account
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="text-center mt-4" style="font-size: 0.9rem;">
+                Already have an account?
+                <a asp-action="Login" asp-controller="Account" asp-route-returnUrl="@Model.ReturnUrl">Log in</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

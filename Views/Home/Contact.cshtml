@@ -1,0 +1,124 @@
+@model ContactViewModel
+@{
+    ViewData["Title"] = "Get a Quote";
+}
+
+<section class="hero" style="padding: 3rem 0 4.5rem;">
+    <div class="container">
+        <div class="col-lg-8">
+            <p class="text-eyebrow mb-2">Get a quote</p>
+            <h1 style="font-size: clamp(1.9rem, 4vw, 2.8rem);">Let's get you connected.</h1>
+            <p class="lead">
+                Fill this in and a real person from our sales team will call you back the same
+                working day &mdash; with pricing for your area and an installation date.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="container">
+    <div class="row g-4" style="margin-top: -2.5rem;">
+        <div class="col-lg-8">
+            <div class="panel mb-0">
+                <h2>Your details</h2>
+
+                @if (!string.IsNullOrWhiteSpace(Model.CoverageResult))
+                {
+                    <div class="alert alert-info d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>Checking availability for: <strong>@Model.CoverageResult</strong></span>
+                    </div>
+                }
+
+                <form asp-action="Contact" asp-controller="Home" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="CoverageResult" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" placeholder="e.g. Thabo Molefe" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label"></label>
+                            <input asp-for="Phone" class="form-control" placeholder="+27 82 555 0125" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="you@example.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label"></label>
+                            <input asp-for="Address" class="form-control" placeholder="Street address, suburb, city" />
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-8">
+                            <label asp-for="PlanId" class="form-label"></label>
+                            <select asp-for="PlanId" asp-items="Model.PlanOptions" class="form-select">
+                                <option value="">Not sure yet - please advise</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Message" class="form-label"></label>
+                            <textarea asp-for="Message" rows="4" class="form-control"
+                                      placeholder="Anything we should know? e.g. current provider, number of people at home, whether you need a static IP."></textarea>
+                            <span asp-validation-for="Message" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                <i class="bi bi-send me-2"></i>Request my quote
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="panel">
+                <h2>Other ways to reach us</h2>
+                <div class="detail-row">
+                    <span class="k">Sales</span>
+                    <span class="v"><a href="tel:0860000325">0860 000 325</a></span>
+                </div>
+                <div class="detail-row">
+                    <span class="k">Support (24/7 faults)</span>
+                    <span class="v"><a href="tel:0860000326">0860 000 326</a></span>
+                </div>
+                <div class="detail-row">
+                    <span class="k">Email</span>
+                    <span class="v"><a href="mailto:sales@three25it.co.za">sales@three25it.co.za</a></span>
+                </div>
+                <div class="detail-row">
+                    <span class="k">Existing customers</span>
+                    <span class="v"><a asp-controller="Support" asp-action="Index">Open a ticket</a></span>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>What happens next</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="t-title">We check your address</div>
+                        <div class="t-meta">Against our live node database and current build schedule</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="t-title">Sales calls you back</div>
+                        <div class="t-meta">Same working day, with pricing for your specific area</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="t-title">You accept a quote</div>
+                        <div class="t-meta">We book the installation slot and start the paperwork</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="t-title">You're online</div>
+                        <div class="t-meta">Typically within 3 business days, and we port you across</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

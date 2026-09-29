@@ -1,0 +1,108 @@
+@model UsageViewModel
+@{
+    ViewData["Title"] = "Usage";
+    Layout = "_PortalLayout";
+    ViewData["OpenTicketCount"] = 0;
+    var max = Model.Records.Count > 0 ? (decimal)Model.Records.Max(r => r.DownloadGb) : 1m;
+}
+
+<div class="portal-shell">
+    <partial name="_Sidebar" />
+
+    <div class="portal-content">
+        <div class="portal-header">
+            <div>
+                <h1>Data usage</h1>
+                <p class="sub">
+                    @(Model.Plan?.IsUncapped == true
+                        ? "You're on an uncapped package - we never throttle, this is for information only."
+                        : "Monthly data usage against your package allowance.")
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-label">Downloaded (12 mo)</div>
+                    <div class="stat-value">@Model.TotalDownloadGb.ToString("N0")<small style="font-size: 0.9rem;"> GB</small></div>
+                    <div class="stat-hint">Avg @Model.AvgDownloadGb.ToString("N0") GB / month</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card cyan">
+                    <div class="stat-label">Uploaded (12 mo)</div>
+                    <div class="stat-value">@Model.TotalUploadGb.ToString("N0")<small style="font-size: 0.9rem;"> GB</small></div>
+                    <div class="stat-hint">Backups &amp; cloud sync</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card green">
+                    <div class="stat-label">Peak download</div>
+                    <div class="stat-value">@Model.PeakDownloadMbps.ToString("N1")<small style="font-size: 0.9rem;"> Mbps</small></div>
+                    <div class="stat-hint">Highest recorded</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card amber">
+                    <div class="stat-label">Plan speed</div>
+                    <div class="stat-value" style="font-size: 1.3rem;">@Model.Plan?.DownloadMbps Mbps</div>
+                    <div class="stat-hint">@(Model.Plan?.UploadMbps) Mbps up</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Monthly usage</h2>
+            @if (Model.Records.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th style="min-width: 180px;">Downloaded</th>
+                                <th class="text-end">Download</th>
+                                <th class="text-end">Upload</th>
+                                <th class="text-end">Peak down</th>
+                                <th class="text-end">Peak up</th>
+                                <th class="text-end">Latency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in Model.Records)
+                            {
+                                var pct = max > 0 ? (double)(record.DownloadGb / max * 100m) : 0;
+                                <tr>
+                                    <td class="fw-semibold">@record.Month</td>
+                                    <td>
+                                        <div class="usage-bar">
+                                            <div class="fill" style="width: @pct.ToString("0.##")%;"></div>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">@record.DownloadGb.ToString("N1") GB</td>
+                                    <td class="text-end">@record.UploadGb.ToString("N1") GB</td>
+                                    <td class="text-end">@record.PeakDownloadMbps Mbps</td>
+                                    <td class="text-end">@record.PeakUploadMbps Mbps</td>
+                                    <td class="text-end text-muted">@record.AverageLatencyMs ms</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-muted mt-3 mb-0" style="font-size: 0.84rem;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Usage is sampled hourly from your ONT and aggregated monthly. Uncapped plans
+                    are never throttled regardless of volume.
+                </p>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="icon"><i class="bi bi-graph-up"></i></div>
+                    <p class="mb-0">No usage recorded for this account yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,160 @@
+@model TicketDetailViewModel
+@{
+    ViewData["Title"] = Model.Ticket?.TicketNumber ?? "Ticket";
+    Layout = "_PortalLayout";
+    ViewData["OpenTicketCount"] = 0;
+    var ticket = Model.Ticket!;
+
+    string StatusClass(string status) => status switch
+    {
+        TicketStatuses.Open => "badge-open",
+        TicketStatuses.InProgress => "badge-progress",
+        TicketStatuses.AwaitingCustomer => "badge-waiting",
+        TicketStatuses.Resolved => "badge-resolved",
+        _ => "badge-closed"
+    };
+
+    string PriorityClass(string priority) => priority switch
+    {
+        TicketPriorities.High => "badge-high",
+        TicketPriorities.Urgent => "badge-urgent",
+        TicketPriorities.Low => "badge-low",
+        _ => "badge-normal"
+    };
+}
+
+<div class="portal-shell">
+    <partial name="_Sidebar" />
+
+    <div class="portal-content">
+        <div class="portal-header">
+            <div>
+                <h1>@ticket.Subject</h1>
+                <p class="sub">
+                    @ticket.TicketNumber &middot; raised @ticket.CreatedAt.ToString("d MMMM yyyy 'at' HH:mm")
+                </p>
+            </div>
+            <a class="btn btn-outline-primary" asp-action="Index">
+                <i class="bi bi-arrow-left me-1"></i>All tickets
+            </a>
+        </div>
+
+        <partial name="_Alerts" />
+
+        <div class="panel">
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <span class="status-badge @StatusClass(ticket.TicketStatus)">@ticket.TicketStatus</span>
+                <span class="status-badge @PriorityClass(ticket.Priority)">@ticket.Priority</span>
+                <span class="status-badge badge-closed">@ticket.Category</span>
+            </div>
+
+            <div class="ticket-thread">
+                @foreach (var message in ticket.Messages.OrderBy(m => m.SentAt))
+                {
+                    <div class="ticket-msg @(message.IsFromSupport ? "from-support" : "from-customer")">
+                        <div class="msg-head">
+                            @message.AuthorName &middot; @message.SentAt.ToString("d MMM yyyy HH:mm")
+                        </div>
+                        <div class="msg-body">@message.Body</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="panel">
+                    <h2>Reply to this ticket</h2>
+                    @if (ticket.TicketStatus == TicketStatuses.Closed)
+                    {
+                        <div class="alert alert-secondary" style="font-size: 0.9rem;">
+                            <i class="bi bi-lock me-1"></i>
+                            This ticket is closed. If the issue is back, please
+                            <a asp-action="New">open a new ticket</a> so we track it properly.
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-action="Reply" asp-route-id="@ticket.Id" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                            <div class="mb-3">
+                                <label asp-for="Reply" class="form-label"></label>
+                                <textarea asp-for="Reply" rows="5" class="form-control"
+                                          placeholder="Add more detail, or answer a question from our team."></textarea>
+                                <span asp-validation-for="Reply" class="text-danger small"></span>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-send me-1"></i>Send reply
+                                </button>
+                            </div>
+                        </form>
+
+                        <form asp-action="Reply" asp-route-id="@ticket.Id" method="post" class="mt-3 pt-3"
+                              style="border-top: 1px solid var(--t25-line);">
+                            <input type="hidden" asp-for="Reply" />
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" asp-for="CloseTicket" id="closeTicket" />
+                                <label class="form-check-label text-muted" for="closeTicket" style="font-size: 0.9rem;">
+                                    My issue has been resolved - close this ticket
+                                </label>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="panel">
+                    <h2>Ticket information</h2>
+                    <div class="detail-row">
+                        <span class="k">Category</span>
+                        <span class="v">@ticket.Category</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Priority</span>
+                        <span class="v">@ticket.Priority</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Assigned to</span>
+                        <span class="v">@(ticket.AssignedTo ?? "Unassigned")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Created</span>
+                        <span class="v">@ticket.CreatedAt.ToString("d MMM yyyy")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Last updated</span>
+                        <span class="v">@ticket.UpdatedAt.ToString("d MMM yyyy")</span>
+                    </div>
+                    @if (ticket.ClosedAt.HasValue)
+                    {
+                        <div class="detail-row">
+                            <span class="k">Closed</span>
+                            <span class="v">@ticket.ClosedAt.Value.ToString("d MMM yyyy")</span>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Service is not null)
+                {
+                    <div class="panel">
+                        <h2>Service on this ticket</h2>
+                        <div class="detail-row">
+                            <span class="k">Plan</span>
+                            <span class="v">@Model.Service.Plan?.Name</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">ONT serial</span>
+                            <span class="v">@Model.Service.OntSerialNumber</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="k">Public IP</span>
+                            <span class="v">@Model.Service.PublicIpAddress</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

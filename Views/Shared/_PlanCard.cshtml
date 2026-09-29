@@ -1,0 +1,49 @@
+@model Three25IT.Models.Plan
+
+@{
+    var features = (Model.IncludedFeatures ?? string.Empty)
+        .Split('|', StringSplitOptions.RemoveEmptyEntries)
+        .Select(f => f.Trim())
+        .ToList();
+}
+
+<div class="plan-card @(Model.IsFeatured ? "featured" : "")">
+    @if (Model.IsFeatured)
+    {
+        <span class="plan-badge">Most popular</span>
+    }
+
+    <div class="plan-name">@Model.Name</div>
+    <div class="plan-speed">@Model.DownloadMbps<span class="text-muted" style="font-size: 1rem; font-weight: 600;"> Mbps</span></div>
+    <div class="text-muted mb-2" style="font-size: 0.85rem;">@Model.UploadMbps Mbps upload &middot; symmetrical</div>
+    <p class="text-muted" style="font-size: 0.88rem;">@Model.Description</p>
+
+    <div class="plan-price">
+        R@(Model.MonthlyPrice.ToString("0"))<small>/month</small>
+    </div>
+    <div class="mb-2">
+        @if (Model.IsUncapped)
+        {
+            <span class="status-badge badge-active">Uncapped</span>
+        }
+        else
+        {
+            <span class="status-badge badge-progress">@Model.DataCap</span>
+        }
+    </div>
+
+    <ul class="feature-list">
+        @foreach (var feature in features)
+        {
+            <li>@feature</li>
+        }
+    </ul>
+
+    <a class="btn @(Model.IsFeatured ? "btn-primary" : "btn-outline-primary") w-100"
+       asp-controller="Home" asp-action="Contact" asp-route-plan="@Model.Id">
+        Get this plan
+    </a>
+    <div class="text-center text-muted mt-2" style="font-size: 0.78rem;">
+        @Model.ContractMonths-month contract &middot; installation included
+    </div>
+</div>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 72" role="img" aria-label="Three25IT">
+  <defs>
+    <linearGradient id="t25-core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22E4FF"/>
+      <stop offset="100%" stop-color="#3B8BFF"/>
+    </linearGradient>
+    <linearGradient id="t25-plate" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1B4BDB"/>
+      <stop offset="100%" stop-color="#0A1A3C"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Mark: rounded plate with fibre strands converging into a burst -->
+  <rect x="0" y="0" width="64" height="64" rx="18" fill="url(#t25-plate)"/>
+
+  <g opacity="0.14" fill="none" stroke="#22E4FF" stroke-width="9" stroke-linecap="round">
+    <path d="M14 12 C 30 20, 34 30, 32 52"/>
+    <path d="M26 6 C 40 16, 42 28, 40 50"/>
+    <path d="M38 4 C 48 14, 50 26, 48 44"/>
+  </g>
+
+  <g fill="none" stroke="url(#t25-core)" stroke-width="3.6" stroke-linecap="round">
+    <path d="M13 12 C 30 20, 35 30, 33 52"/>
+    <path d="M25 7  C 39 16, 43 28, 41 50"/>
+    <path d="M37 5  C 48 14, 51 26, 49 44"/>
+  </g>
+
+  <g stroke="#0A1A3C" stroke-width="1.1" opacity="0.5">
+    <path d="M13 12 C 30 20, 35 30, 33 52" fill="none"/>
+    <path d="M25 7  C 39 16, 43 28, 41 50" fill="none"/>
+    <path d="M37 5  C 48 14, 51 26, 49 44" fill="none"/>
+  </g>
+
+  <!-- Signal burst at the fibre exit -->
+  <g fill="none" stroke="#22E4FF" stroke-width="2.8" stroke-linecap="round">
+    <path d="M33 30 h11"/>
+    <path d="M36 23 h12"/>
+    <path d="M36 37 h12"/>
+  </g>
+  <circle cx="32" cy="30" r="4.2" fill="#22E4FF"/>
+  <circle cx="32" cy="30" r="8" fill="#22E4FF" opacity="0.22"/>
+
+  <!-- Wordmark -->
+  <text x="82" y="46" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="34" font-weight="700" letter-spacing="-0.5" fill="#0A1A3C">Three<tspan fill="#0B63E5">25</tspan>IT</text>
+</svg>

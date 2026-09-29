@@ -1,0 +1,54 @@
+@model EnquirySuccessViewModel
+@{
+    ViewData["Title"] = "Quote Requested";
+}
+
+<section class="auth-wrapper">
+    <div class="container">
+        <div class="auth-card text-center" style="max-width: 560px;">
+            <div class="auth-head">
+                <img src="~/img/logo.svg" alt="Three25IT" />
+                <div class="display-6 mb-2" style="color: #12B76A;"><i class="bi bi-check-circle-fill"></i></div>
+                <h1>Thanks, @Model.FullName.Split(' ').First()!</h1>
+                <p>Your quote request is in. Here's what to expect.</p>
+            </div>
+
+            <div class="demo-hint text-start mb-3">
+                <strong class="d-block mb-1">Your reference</strong>
+                <code>@Model.Reference</code>
+                <span class="d-block mt-2 mb-0">
+                    Quote this reference if you call us about this enquiry.
+                </span>
+            </div>
+
+            @if (Model.CoverageWasAvailable)
+            {
+                <div class="alert alert-success text-start" style="font-size: 0.9rem;">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Fibre is available at your address. We'll confirm the best package and an
+                    installation slot when we call you back.
+                </div>
+            }
+
+            <div class="timeline text-start">
+                <div class="timeline-item">
+                    <div class="t-title">We've emailed your details to our sales team</div>
+                    <div class="t-meta">Same working day, between 08:00 and 17:00</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="t-title">Expect a call within a few hours</div>
+                    <div class="t-meta">We'll confirm availability, pricing and the earliest install slot</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="t-title">Want it faster?</div>
+                    <div class="t-meta">Call <a href="tel:0860000325">0860 000 325</a> and quote reference @Model.Reference</div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
+                <a class="btn btn-primary" asp-controller="Home" asp-action="Pricing">Browse packages</a>
+                <a class="btn btn-outline-primary" asp-controller="Home" asp-action="Index">Back to home</a>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,34 @@
+@using Microsoft.AspNetCore.Identity
+@using Three25IT.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav align-items-lg-center">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Portal" asp-action="Index">
+                <i class="bi bi-speedometer2 me-1"></i> My Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Support" asp-action="Index">
+                <i class="bi bi-life-preserver me-1"></i> Support
+            </a>
+        </li>
+        <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-primary btn-sm">Sign out</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Account" asp-action="Login">Log in</a>
+        </li>
+        <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+            <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Register">Create account</a>
+        </li>
+    }
+</ul>

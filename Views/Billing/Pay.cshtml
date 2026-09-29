@@ -1,0 +1,145 @@
+@model PaymentViewModel
+@{
+    ViewData["Title"] = "Make a Payment";
+    Layout = "_PortalLayout";
+    ViewData["OpenTicketCount"] = 0;
+    var selected = Model.PayableInvoices.FirstOrDefault(i => i.Id == Model.InvoiceId);
+}
+
+<div class="portal-shell">
+    <partial name="_Sidebar" />
+
+    <div class="portal-content">
+        <div class="portal-header">
+            <div>
+                <h1>Make a payment</h1>
+                <p class="sub">Settle an outstanding invoice on your Three25IT account.</p>
+            </div>
+        </div>
+
+        <partial name="_Alerts" />
+
+        <div class="row g-3">
+            <div class="col-lg-7">
+                <div class="panel">
+                    <h2>Payment details</h2>
+
+                    @if (!Model.PayableInvoices.Any())
+                    {
+                        <div class="empty-state">
+                            <div class="icon"><i class="bi bi-check2-circle"></i></div>
+                            <h2 class="h5" style="color: var(--t25-navy);">Nothing to pay</h2>
+                            <p>You have no outstanding invoices on your account.</p>
+                            <a class="btn btn-outline-primary" asp-action="Index">Back to billing</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-action="Pay" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="InvoiceId" class="form-label"></label>
+                                <select asp-for="InvoiceId" class="form-select" id="InvoiceId">
+                                    @foreach (var invoice in Model.PayableInvoices)
+                                    {
+                                        <option value="@invoice.Id" selected="@(invoice.Id == Model.InvoiceId)">
+                                            @invoice.InvoiceNumber - R@(invoice.Balance.ToString("N2")) (due @invoice.DueDate.ToString("d MMM yyyy"))
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="InvoiceId" class="text-danger small"></span>
+                            </div>
+
+                            <label class="form-label">Payment method</label>
+                            <div class="mb-3">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pmCard"
+                                           value="Card" @(Model.PaymentMethod == "Card" ? "checked" : "") />
+                                    <label class="form-check-label" for="pmCard">
+                                        <i class="bi bi-credit-card me-1"></i>Credit or debit card
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pmEft"
+                                           value="EFT" @(Model.PaymentMethod == "EFT" ? "checked" : "") />
+                                    <label class="form-check-label" for="pmEft">
+                                        <i class="bi bi-bank me-1"></i>EFT / bank transfer
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pmDebit"
+                                           value="Debit Order" @(Model.PaymentMethod == "Debit Order" ? "checked" : "") />
+                                    <label class="form-check-label" for="pmDebit">
+                                        <i class="bi bi-arrow-repeat me-1"></i>Debit order
+                                    </label>
+                                </div>
+                            </div>
+
+                            @if (selected is not null)
+                            {
+                                <div class="demo-hint mb-3">
+                                    <strong class="d-block mb-1">Demo gateway</strong>
+                                    <span class="d-block mb-0">
+                                        No live payment provider is connected in this build. Submitting this
+                                        form will simulate a successful payment and mark
+                                        <code>@selected.InvoiceNumber</code> as paid.
+                                    </span>
+                                </div>
+                            }
+
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                <i class="bi bi-lock me-2"></i>
+                                Pay @(selected is not null ? "R" + selected.Balance.ToString("N2") : "")
+                            </button>
+                            <a class="btn btn-link text-muted" asp-action="Index">Cancel</a>
+                        </form>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="panel">
+                    <h2>Other ways to pay</h2>
+                    <p class="text-muted" style="font-size: 0.9rem;">
+                        Prefer to settle your account at the bank? Use our banking details below and
+                        send your proof of payment to
+                        <a href="mailto:billing@three25it.co.za">billing@three25it.co.za</a>.
+                    </p>
+                    <div class="detail-row">
+                        <span class="k">Account name</span>
+                        <span class="v">Three25IT Communications</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Bank</span>
+                        <span class="v">Standard Bank</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Branch code</span>
+                        <span class="v">051001</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Account number</span>
+                        <span class="v">001 234 567 89</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="k">Account type</span>
+                        <span class="v">Business Cheque</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Need help?</h2>
+                    <p class="text-muted mb-2" style="font-size: 0.9rem;">
+                        If your payment isn't reflecting after 24 hours, or you need a payment
+                        arrangement, our billing team will sort it out.
+                    </p>
+                    <a class="btn btn-outline-primary w-100" asp-controller="Support" asp-action="New"
+                       asp-route-category="@Three25IT.Models.TicketCategories.Billing">
+                        <i class="bi bi-life-preserver me-1"></i>Open a billing ticket
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
